@@ -1,73 +1,117 @@
-# Kimo Monitor
+<div align="center">
+  <img src="Sources/KimoMonitor/Assets.xcassets/AppIcon.appiconset/icon_512x512.png" width="100" alt="Kimo Monitor 图标">
+  <h1>Kimo Monitor</h1>
+  <p>一款原生、轻巧的 macOS 菜单栏系统监控工具。</p>
+  <p>在菜单栏随时查看 CPU、内存和网速，点击即可展开详细信息。</p>
+  <p><strong>macOS 14+</strong> · SwiftUI · 本地采样</p>
+</div>
 
-使用 SwiftUI 构建的 macOS 菜单栏监控工具，最低支持 macOS 14，不依赖第三方运行时。
+## 界面预览
 
-## 运行
+三个独立面板展示实时网速、内存状态和 CPU 占用，也可以在设置中选择需要显示的菜单栏项目。
 
-使用 Xcode 打开 `KimoMonitor.xcodeproj`，选择 `KimoMonitor` 并运行。应用正常启动只显示菜单栏，分别点击 CPU、MEM 和网速打开详情；齿轮菜单可打开设置、三个面板的实时对照窗口、查看统计口径或退出。
+![网速、内存和 CPU 监控面板](docs/images/overview.png)
 
-```sh
-xcodebuild -project KimoMonitor.xcodeproj -scheme KimoMonitor -configuration Release build
+<details>
+<summary>查看设置界面</summary>
+
+**菜单栏设置**
+
+![菜单栏设置页面](docs/images/settings-menu.png)
+
+**采样与网络设置**
+
+![采样与网络设置页面](docs/images/settings-monitoring.png)
+
+</details>
+
+> 图片使用应用视图生成，数值和应用名称为演示数据；实际界面显示本机实时数据。
+
+## 功能
+
+- **菜单栏监控**：独立显示 CPU、内存和网速，按需隐藏或调整显示内容。
+- **实时详情**：查看 CPU 与网络趋势、内存分类和压力等级，以及 CPU、内存占用较高的应用。
+- **灵活设置**：调整采样间隔、图表时间范围、排行榜数量、网络接口、显示单位与面板主题。
+- **异常提醒**：可选择开启 CPU 持续高占用和系统内存压力提醒，并设置重复提醒间隔。
+- **本地运行**：采样与计算在本机完成；设置保存在本机，历史图表仅保存在运行期间的内存中。
+
+## 开始使用
+
+### 环境要求
+
+- 运行环境：macOS 14 或更高版本。
+- 从源码构建：包含 macOS 27 SDK 的 Xcode 27 或更高版本。项目不依赖第三方运行时。
+
+### 从源码构建
+
+```bash
+git clone https://github.com/kimo-si/kimo-monitor.git
+cd kimo-monitor
+xcodebuild -project KimoMonitor.xcodeproj -scheme KimoMonitor \
+  -configuration Release -derivedDataPath build build
+open "build/Build/Products/Release/Kimo Monitor.app"
 ```
 
-`project.yml` 是 XcodeGen 项目定义；增删源文件后运行 `xcodegen generate`。命令行传入 `--preview` 可在启动时打开真实数据总览。总览与菜单栏复用相同视图和同一个采样器。
+也可以使用 Xcode 打开 `KimoMonitor.xcodeproj`，选择 `KimoMonitor` scheme 后运行。当前仓库提供源码；构建产物的签名和分发需要根据自己的环境配置。
 
-## 设置
+### 第一次打开
 
-在任一菜单栏详情面板中点击齿轮，再选择“打开设置…”。左侧导航包含通用、菜单栏、监控、面板、通知和关于：
+1. 在 macOS 菜单栏找到 **CPU、MEM 和网速**，点击其中任意一项打开详情。
+2. 点击详情面板右上角的齿轮，选择 **打开设置…**。
+3. 根据需要调整菜单栏显示、采样间隔和面板主题。开启提醒时，macOS 会请求通知权限。
 
-- 通用：登录时启动、启动实时总览及恢复默认设置。登录启动由 macOS 管理，可能需要系统设置批准。
-- 菜单栏：分别显示或隐藏 CPU、内存、网速（至少保留一项）；切换内存指标、网络方向并即时预览。
-- 监控：采样间隔、字节或比特速率、十进制或二进制容量单位，以及自动或指定活跃的 `en` 网络接口。接口切换后重新建立速率基线。
-- 面板：深色、浅色或跟随系统，显示或隐藏趋势图及应用列表，调整图表范围与排行数量。历史数据从运行时开始累积。
-- 通知：默认关闭；开启后请求系统授权。支持 CPU 持续高占用和系统内存压力提醒，并可设置冷却时间。采样间断时 CPU 持续时间重新计算。
-- 关于：版本、实时总览、统计口径与数据范围。
+应用正常启动时以菜单栏项目运行。需要同时查看三个面板时，可在齿轮菜单中选择 **打开实时对照总览**，或在启动时传入 `--preview`：
 
-设置保存在本机，图表数据保存在内存中；网络接口变化前后的本次流量仍累计在同一次运行里。应用网速尚未接入。
+```bash
+open "build/Build/Products/Release/Kimo Monitor.app" --args --preview
+```
 
-## 菜单栏布局
+## 设置一览
 
-CPU、MEM 的双行内容宽 26 pt；网速内容宽 57 pt，移除额外的右侧留白。双行 SwiftUI 标签合成为固定 22 pt 高的 Retina 模板图像交给原生 `NSStatusItem`，三个指标分别使用独立的原生状态项，不增加应用内左右留白，按钮宽度分别为 26 / 26 / 57 pt；系统可能在独立状态项之间增加间距。参照 329 × 51 像素截图按 Retina 2× 换算，CPU/MEM 标题使用 8 pt 标准宽度系统粗体，下行使用 11 pt 粗体；CPU 显示等宽数字百分比，MEM 显示压力估算百分比，缺失或异常采样显示 `—`。估算口径为“压缩内存 ÷（物理内存 − 连线内存）”，与已使用内存占比不同，也不等同于活动监视器的压力曲线数值；详情面板明确标注“压力估算”，并保留真实系统压力等级。标题行高 10 pt，读数行高 12 pt。网速使用 9.25 pt 粗体等宽数字，两行间距 11 pt；箭头为 7.5 pt 粗体，独占 8 pt 列，距速率列 1.5 pt。速率分为 21 pt 的右对齐数字列、2.5 pt 间距与 24 pt 的左对齐单位列，不追加右侧留白：数字从一位、两位变三位时向左扩展，单位位置和字号固定；超长数字仅在数字列内缩放。数值保持自然文字高度，避免被行高约束自动缩小；单位切换不会改变状态项宽度。模板图由 macOS 根据菜单栏背景着色，状态项宽度由应用明确控制，毛玻璃背景由 macOS 管理。三个按钮分别弹出原有 SwiftUI 面板，各自保留无障碍标签；再次点击当前按钮、点击面板外部、切换到其他应用会关闭面板。各指标可作为独立菜单栏项目移动；macOS 27 使用系统扩展界面会话管理菜单栏交互。
-
-`artifacts/menu-reference-preview.png` 是使用生产标签视图渲染的 2× 排版示例，CPU 与网速采用参考图读数，MEM 使用 51% 压力估算样例。灰色背景仅用于展示；实际菜单栏始终显示实时状态。
-
-## 数据来源与范围
-
-所有系统调用、差分、应用聚合和排序在一个后台串行队列执行，默认每 2 秒采集一次，可在设置中调整。主线程只发布不可变快照，并为当前排行榜缓存图标。菜单栏图像仅在显示文字改变时重新绘制，相同读数复用缓存。没有 shell 子进程、网络上传或高频动画。
-
-| 指标 | 来源与口径 |
+| 页面 | 可以调整的内容 |
 | --- | --- |
-| 系统网速 | `NET_RT_IFLIST2` 的 64 位接口字节计数增量除以实际采样间隔；默认统计 UP/RUNNING 的 `en` 接口合计，也可选择其中一个接口，包含链路开销，不代表应用有效载荷。虚拟隧道和回环不重复纳入。 |
-| 本次流量 | 本次运行中实际观测到的接口字节增量。不补算未运行、计数重置、接口切换或失败间隔的字节；不标成完整“今日流量”。 |
-| 系统 CPU | `HOST_CPU_LOAD_INFO` 的忙碌 tick 增量占总 tick 增量，范围 0–100%。 |
-| 进程 CPU | `proc_pid_rusage` 的用户与系统累计 CPU 时间，经 `mach_timebase_info` 换算，再除以每个进程自身的实际读取间隔及逻辑核心数。单核持续满载约为 `100% / 逻辑核心数`。 |
-| 应用合并 | 按实际可执行文件所属的最外层 `.app` 路径合并辅助进程；不根据名称猜测。通过启动时间识别 PID 复用，通过可执行文件 UUID 识别 exec 后的变化。无应用包的进程单独列出。 |
-| 应用内存 | 可访问进程的 `ri_phys_footprint` 合计，包含内核归属给进程的物理占用和压缩记账；不使用常驻内存冒充活动监视器的“内存”。共享账本、系统服务及活动监视器的分组方式可能造成差异，不能把列表相加作为系统已用内存。 |
-| 系统内存 | 应用内存为 `(internal_page_count − purgeable_count) × 页大小`，连线为 `wire_count`，压缩为 `compressor_page_count`；已使用为三者合计，可用为物理总量减已用。缓存 `(external_page_count + purgeable_count) × 页大小` 另列在说明中，不重复累计。 |
-| 系统压力等级 | 读取 `kern.memorystatus_vm_pressure_level`。XNU 的该 sysctl 会将内部枚举转换为 dispatch 等级；详情面板显示正常、偏高、紧张，分别以绿、黄、红色提示。该等级不直接换算成百分比；接口不可访问或返回未知值时显示不可用。 |
-| 压力估算百分比 | 压缩内存除以物理内存减连线内存，近似非连线可调度池中压缩内存的占比。此指标参考 XNU 可用内存与压缩池的关系，是自定义连续估算，不是 Apple 原生百分比，也不将压力等级映射成固定数值。零分母或压缩量超出池容量时显示 `—`，不以占用率或余量补值。菜单栏显示该百分比，详情注明“估算”并独立保留系统等级。 |
-| 内存系统余量 | 直接读取 `kern.memorystatus_level` 的 0–100 可用页百分比，与系统 `memory_pressure -Q` 的数值口径一致。在面板的内存占用区域以“系统余量 xx%”作为辅助信息，与顶部压力等级独立展示。它不是活动监视器的压力百分比，也不是已使用内存占比。 |
+| 通用 | 登录时启动、启动时打开实时总览、恢复默认设置。登录启动可能需要在系统设置中批准。 |
+| 菜单栏 | CPU、内存和网速的显示；内存指标、网络方向及实时预览。至少保留一个入口。 |
+| 监控 | 采样间隔、网速和容量单位，以及自动或指定的活跃 `en` 网络接口。 |
+| 面板 | 深色、浅色或跟随系统；趋势图、应用列表、时间范围和排行数量。 |
+| 通知 | CPU 持续高占用、系统内存压力及重复提醒间隔。默认关闭。 |
+| 关于 | 版本、实时总览与统计口径。 |
 
-内存与流量统一使用十进制 KB/MB/GB。显示值经过舍入，原始计算保留字节精度；独立舍入可能使屏幕上的分类小数相加存在末位差异。
+默认每 **2 秒**采样一次，图表展示最近 **1 分钟**，应用排行展示 **5 项**。增加图表时间范围后，数据从调整时开始积累。
 
-首次采样、权限不足或读取失败使用 `—`。网速接口集合变化或计数回退时不发布完整速率。图表使用真实时间戳，缺失采样与较长间隔会断开。系统唤醒后重新建立所有差分基线，避免把休眠期间的累计变化绘制为瞬时尖峰。
+## 数据口径与当前限制
 
-## 与参考图的明确差异
+- **CPU**：系统 CPU 占用以全部逻辑核心为 100%；进程 CPU 也按全部逻辑核心归一化。新进程需要等待第二次采样才能计算占比。
+- **内存**：面板分别展示应用、连线、压缩及可用内存。菜单栏可选择压力估算、占用率或已用容量。
+- **压力估算**：计算方式是「压缩内存 ÷（物理内存 − 连线内存）」。它是自定义估算，不是活动监视器的原生压力曲线；系统报告的压力等级会单独展示。
+- **网络**：默认汇总处于 UP/RUNNING 状态的 `en` 接口，也可选择其中一个活跃接口；统计包含链路开销，不代表应用有效载荷。虚拟隧道与回环不计入该汇总。
+- **本次流量**：只累计应用运行期间实际观测到的增量，不补算休眠、未运行、接口切换或采样失败期间无法确认的数据。切换接口前后的已观测流量会继续累计在本次运行中。
+- **应用网速尚未接入**：网络面板中的应用列表按内存排序，网速显示 `—`，不代表网络排行。
+- **权限与缺失值**：无法读取或尚未完成差分采样时显示 `—`；进程采集受系统权限和采样间隔限制。系统唤醒后会重新建立差分基线。
 
-参考图的布局、色彩、双行菜单、图表坐标、应用图标和表格结构已作为实现依据，当前三个面板统一宽 310 pt，高度分别为网速 474 pt、内存 454 pt、CPU 442 pt；相较初版面积缩小约四成，并完整容纳五行应用。以下位置保留真实状态：
+<details>
+<summary>查看实现与系统数据来源</summary>
 
-- 应用网络流量当前没有接入可靠采集源，表头注明“未接入”，单元格显示 `—`；该表使用内存排行榜展示可访问应用，不声称是网络排行。
-- 使用“本次流量”而不是无法补算的“今日流量”。
-- 内存菜单主显示压力估算百分比，面板顶部用大字显示同一估算值及系统真实压力等级；下方保留内存占用率、容量和系统余量作为辅助信息。内存分段使用“应用 / 连线 / 压缩 / 可用”，缓存不与已用重复计算；压力区不使用余量进度条。
+系统调用、差分、应用聚合和排序在同一条后台串行队列执行，主线程发布不可变快照。菜单栏使用独立的原生状态项，图像在显示文字未变化时复用缓存。
 
-进程采集受权限与采样间隔限制，短生命周期进程可能无法观测。App Sandbox 当前关闭；分发、签名及渠道要求需在正式发布时处理。
+| 指标 | 实现 |
+| --- | --- |
+| 网络速率 | 通过 `NET_RT_IFLIST2` 读取 64 位接口字节计数，以增量除以实际采样间隔。 |
+| 系统 CPU | 使用 `HOST_CPU_LOAD_INFO` 的忙碌 tick 增量与总 tick 增量计算。 |
+| 进程 CPU 与内存 | 使用 `proc_pid_rusage`，按可执行文件所属的最外层 `.app` 路径聚合可访问进程。 |
+| 系统内存 | 已使用内存为应用、连线与压缩三部分的合计；缓存另计，避免重复累计。 |
+| 系统内存压力与余量 | 分别读取 `kern.memorystatus_vm_pressure_level` 和 `kern.memorystatus_level`。 |
 
-## 校验
+相关系统源码：[XNU 内存压力与余量](https://github.com/apple-oss-distributions/xnu/blob/main/doc/vm/memorystatus_notify.md)、[内存页定义](https://github.com/apple-oss-distributions/xnu/blob/main/osfmk/mach/vm_statistics.h)、[进程资源记账](https://github.com/apple-oss-distributions/xnu/blob/main/osfmk/kern/bsd_kern.c) 和 [memory_pressure 工具](https://github.com/apple-oss-distributions/system_cmds/blob/main/memory_pressure/memory_pressure.c)。
 
-```sh
+</details>
+
+## 开发与验证
+
+```bash
 python3 Tests/run_checks.py
 ```
 
-检查覆盖紧凑面板五行完整容纳、压力估算边界与菜单缓存、0% 至 100% 的菜单宽度以及四种系统压力等级的主卡片高度、网速位数变化时单位像素固定、内存余量百分比边界、64 位计数、断连、接口切换、计数回退、内存分类、应用合计、首次采样、getrusage 独立 CPU 校准、Mach 主机端口引用、Swift 6 后台采样发布、最终位图上下两行像素以及独立原生状态项的命中区域、面板切换、双行图像和动态宽度。报告位于 `artifacts/validation.txt`；耗时是本机测量，不是所有机型的性能保证。
+检查覆盖采样边界、CPU 校准、后台发布、设置与通知规则、菜单栏渲染和交互，以及面板布局。运行结果写入本地 `artifacts/validation.txt`；报告中的耗时仅代表当前机器。
 
-采集口径核对的系统来源：[XNU 压力与可用内存说明](https://github.com/apple-oss-distributions/xnu/blob/main/doc/vm/memorystatus_notify.md)、[XNU 内存页定义](https://github.com/apple-oss-distributions/xnu/blob/main/osfmk/mach/vm_statistics.h)、[进程资源记账](https://github.com/apple-oss-distributions/xnu/blob/main/osfmk/kern/bsd_kern.c)、[压力 sysctl 转换](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/kern/kern_memorystatus_notify.c)、[可用页百分比计算](https://github.com/apple-oss-distributions/xnu/blob/main/osfmk/vm/vm_pageout.c)、[memory_pressure 系统工具](https://github.com/apple-oss-distributions/system_cmds/blob/main/memory_pressure/memory_pressure.c)。
+`project.yml` 是 XcodeGen 项目定义。增删源码文件后，安装 XcodeGen 并运行 `xcodegen generate`，以更新 `KimoMonitor.xcodeproj`。
