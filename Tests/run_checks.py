@@ -2,6 +2,7 @@
 """编译独立验证程序，任何编译或运行失败都会立即退出。"""
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -15,7 +16,13 @@ def run_check(name, sources):
         executable = Path(directory) / name
         command = ["swiftc", "-swift-version", "6", "-O", *map(str, sources), str(ROOT / "Tests" / f"{name}.swift"), "-o", str(executable)]
         subprocess.run(command, check=True, cwd=ROOT)
-        return subprocess.run([str(executable)], check=True, text=True, capture_output=True, cwd=ROOT).stdout
+        try:
+            return subprocess.run([str(executable)], check=True, text=True, capture_output=True, cwd=ROOT).stdout
+        except subprocess.CalledProcessError as error:
+            # 保留被测程序的完整输出，便于定位编译成功后的运行时错误。
+            print(error.stdout or "", end="", file=sys.stderr)
+            print(error.stderr or "", end="", file=sys.stderr)
+            raise
 
 
 # 分别覆盖算法、后台队列、最终位图以及真正的系统菜单栏。
@@ -27,6 +34,8 @@ def main():
     outputs.append(run_check("MenuBarLayoutChecks", views))
     outputs.append(run_check("MenuBarSystemChecks", views))
     outputs.append(run_check("PanelLayoutChecks", views))
+    if "--performance" in sys.argv:
+        outputs.append(run_check("PerformanceChecks", views))
     report = "".join(outputs)
     destination = ROOT / "artifacts" / "validation.txt"
     destination.parent.mkdir(exist_ok=True)

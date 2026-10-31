@@ -23,15 +23,19 @@ final class ProcessSampler {
     private var identities: [pid_t: ProcessIdentity] = [:]
     private var names: [String: String] = [:]
     private let timebase = ProcessSampler.readTimebase()
+    private var processorCount = 1.0
 
     // 枚举可访问进程，并按明确的应用包路径聚合。
     func sample() -> [ApplicationUsage] {
+        processorCount = Double(max(1, ProcessInfo.processInfo.activeProcessorCount))
         let pids = processIDs()
         var counters: [pid_t: ProcessCounter] = [:]
         let processes = pids.compactMap { readProcess($0, next: &counters) }
         previous = counters
         identities = identities.filter { counters[$0.key] != nil }
         let groups = Dictionary(grouping: processes) { $0.applicationPath ?? "pid:\($0.id)" }
+        let activePaths = Set(groups.values.compactMap { $0.first?.applicationPath })
+        names = names.filter { activePaths.contains($0.key) }
         return groups.map { key, members in
             let path = members.first?.applicationPath
             return ApplicationUsage(id: key, name: applicationName(path, fallback: members.first?.name ?? "未知进程"),
@@ -41,6 +45,13 @@ final class ProcessSampler {
 
     // 唤醒后丢弃旧 CPU 基线，不把休眠时间计入进程速率。
     func resetBaseline() { previous = [:] }
+
+    // 无可见排行榜时释放进程元信息，恢复采样时从新基线开始计算 CPU。
+    func releaseCaches() {
+        previous = [:]
+        identities = [:]
+        names = [:]
+    }
 
     // 预留进程增长空间，限制读取数量不超过实际缓冲区。
     private func processIDs() -> [pid_t] {
@@ -73,7 +84,7 @@ final class ProcessSampler {
         guard let old = previous[pid], old.startTime == start, total >= old.cpuTime,
               now > old.observedAt, timebase > 0 else { return nil }
         return Double(total - old.cpuTime) * timebase / 1_000_000_000
-            / (now - old.observedAt) / Double(ProcessInfo.processInfo.activeProcessorCount)
+            / (now - old.observedAt) / processorCount
     }
 
     // 定期刷新元信息以处理 exec；应用路径只从实际可执行文件路径推导。

@@ -7,6 +7,7 @@ struct PanelLayoutChecks {
     @MainActor static func main() async throws {
         _ = NSApplication.shared
         let store = MonitorStore()
+        store.setDetailsVisible(true, for: .overview)
         store.start()
         try await Task.sleep(for: .seconds(MonitorConfiguration.interval + 1))
         precondition(store.snapshot.topMemory.count == 5 && store.snapshot.topCPU.count == 5)

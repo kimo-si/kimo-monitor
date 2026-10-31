@@ -4,8 +4,9 @@ import UserNotifications
 
 // 管理单例设置窗口，让菜单栏入口始终打开同一份配置。
 @MainActor
-final class SettingsWindow {
+final class SettingsWindow: NSObject, NSWindowDelegate {
     private static var window: NSWindow?
+    private static let lifecycle = SettingsWindow()
 
     // 展示左侧导航和对应设置，并复用正在运行的采样器。
     static func show(store: MonitorStore) {
@@ -15,6 +16,7 @@ final class SettingsWindow {
         window.title = "Kimo Monitor 设置"
         window.minSize = NSSize(width: 680, height: 470)
         window.isReleasedWhenClosed = false
+        window.delegate = lifecycle
         // 让系统托管导航工具栏与内容区域，避免表单延伸到工具栏下方。
         window.contentViewController = NSHostingController(rootView: SettingsView(store: store))
         // 托管控制器会按内容重算窗口尺寸，恢复设置窗口的初始大小。
@@ -23,6 +25,12 @@ final class SettingsWindow {
         window.makeKeyAndOrderFront(nil)
         NSApp.activate()
         self.window = window
+    }
+
+    // 关闭后释放设置视图，避免隐藏的实时预览继续更新。
+    func windowWillClose(_ notification: Notification) {
+        Self.window?.contentViewController = nil
+        Self.window = nil
     }
 }
 

@@ -66,6 +66,7 @@ struct HistoryChart: View {
     // 对缺失值和过长间隔切断曲线，避免把离线时间绘制为连续数据。
     private func draw(secondary: Bool, context: inout GraphicsContext, size: CGSize) {
         guard let end = points.last?.time else { return }
+        let scaleMaximum = maximum
         let tint = secondary ? MonitorStyle.purple : color
         var segment: [CGPoint] = []
         var previousTime: TimeInterval?
@@ -77,7 +78,7 @@ struct HistoryChart: View {
             }
             if let value {
                 let x = size.width * (1 - (end - point.time) / historySeconds)
-                segment.append(CGPoint(x: max(0, x), y: size.height * (1 - min(1, max(0, value / maximum)))))
+                segment.append(CGPoint(x: max(0, x), y: size.height * (1 - min(1, max(0, value / scaleMaximum)))))
             }
             previousTime = point.time
         }

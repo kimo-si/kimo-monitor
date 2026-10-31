@@ -1,6 +1,7 @@
 .DS_Store
 DerivedData/
 build/
+build-release/
 *.xcuserstate
 xcuserdata/
 
@@ -9,3 +10,7 @@ xcuserdata/
 __pycache__/
 artifacts/validation.txt
 artifacts/menu-system-validation.txt
+artifacts/performance/
+artifacts/checks-progress.txt
+artifacts/*.log
+artifacts/menu-renderer-comparison.png

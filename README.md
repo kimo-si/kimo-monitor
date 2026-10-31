@@ -42,6 +42,12 @@
 - 运行环境：macOS 14 或更高版本。
 - 从源码构建：包含 macOS 27 SDK 的 Xcode 27 或更高版本。项目不依赖第三方运行时。
 
+### 下载安装
+
+在 [GitHub Releases](https://github.com/kimo-si/kimo-monitor/releases/latest) 下载 `Kimo-Monitor-0.1.0.dmg`，打开后将应用拖入 Applications。安装包同时支持 Apple 芯片和 Intel 芯片。
+
+当前发行版使用临时签名，尚未经过 Apple 公证。从浏览器下载后，macOS 可能阻止首次打开；确认文件来自本项目后，可在系统设置的「隐私与安全性」中选择允许打开。详见 [Apple 官方说明](https://support.apple.com/zh-cn/102445)。
+
 ### 从源码构建
 
 ```bash
@@ -52,7 +58,7 @@ xcodebuild -project KimoMonitor.xcodeproj -scheme KimoMonitor \
 open "build/Build/Products/Release/Kimo Monitor.app"
 ```
 
-也可以使用 Xcode 打开 `KimoMonitor.xcodeproj`，选择 `KimoMonitor` scheme 后运行。当前仓库提供源码；构建产物的签名和分发需要根据自己的环境配置。
+也可以使用 Xcode 打开 `KimoMonitor.xcodeproj`，选择 `KimoMonitor` scheme 后运行。源码构建产物的签名和分发需要根据自己的环境配置。
 
 ### 第一次打开
 
@@ -79,6 +85,8 @@ open "build/Build/Products/Release/Kimo Monitor.app" --args --preview
 
 默认每 **2 秒**采样一次，图表展示最近 **1 分钟**，应用排行展示 **5 项**。增加图表时间范围后，数据从调整时开始积累。
 
+应用排行按需采集：仅菜单栏运行、详情全部关闭、总览最小化或完全被遮挡时，不扫描进程；关闭「应用列表」也会停止扫描。重新打开后立即读取内存排行，CPU 排行需等待下一次采样建立差分。系统指标、流量累计和提醒继续按设置周期更新；关闭「趋势图」后不再积累图表历史。
+
 ## 数据口径与当前限制
 
 - **CPU**：系统 CPU 占用以全部逻辑核心为 100%；进程 CPU 也按全部逻辑核心归一化。新进程需要等待第二次采样才能计算占比。
@@ -92,7 +100,7 @@ open "build/Build/Products/Release/Kimo Monitor.app" --args --preview
 <details>
 <summary>查看实现与系统数据来源</summary>
 
-系统调用、差分、应用聚合和排序在同一条后台串行队列执行，主线程发布不可变快照。菜单栏使用独立的原生状态项，图像在显示文字未变化时复用缓存。
+系统调用、差分、应用聚合和排序在同一条后台串行队列执行，主线程发布不可变快照。应用总量在聚合时计算一次。菜单栏使用独立的原生状态项和 AppKit 小位图，图像在显示文字未变化时复用缓存。详情图标仅保留当前排行所需的 44×44 像素缩略图，关闭详情后释放；关闭总览、弹出面板和设置窗口时销毁对应的 SwiftUI 宿主视图。
 
 | 指标 | 实现 |
 | --- | --- |
@@ -110,8 +118,10 @@ open "build/Build/Products/Release/Kimo Monitor.app" --args --preview
 
 ```bash
 python3 Tests/run_checks.py
+# 额外测量菜单栏、可见总览、关闭总览三个场景（每场景预热 6 秒、测量 20 秒）
+python3 Tests/run_checks.py --performance
 ```
 
-检查覆盖采样边界、CPU 校准、后台发布、设置与通知规则、菜单栏渲染和交互，以及面板布局。运行结果写入本地 `artifacts/validation.txt`；报告中的耗时仅代表当前机器。
+检查覆盖采样边界、CPU 校准、后台发布、按需进程采集与恢复、图标缓存释放、设置与通知规则、菜单栏渲染和交互，以及面板布局与窗口释放。运行结果写入本地 `artifacts/validation.txt`；报告中的耗时仅代表当前机器。性能测量使用进程累计 CPU 时间（单核心为 100%），并分别报告内核物理内存账本与 RSS 的采样中位数；请保持窗口可见，避免交互和其他测试干扰对比。
 
 `project.yml` 是 XcodeGen 项目定义。增删源码文件后，安装 XcodeGen 并运行 `xcodegen generate`，以更新 `KimoMonitor.xcodeproj`。

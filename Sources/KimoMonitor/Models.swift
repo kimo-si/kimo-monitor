@@ -15,10 +15,17 @@ struct ApplicationUsage: Identifiable, Equatable, Sendable {
     let name: String
     let path: String?
     let processes: [ProcessUsage]
-    var memory: UInt64 { processes.reduce(0) { $0 + $1.memory } }
-    var cpu: Double? {
-        guard processes.allSatisfy({ $0.cpu != nil }) else { return nil }
-        return processes.reduce(0) { $0 + ($1.cpu ?? 0) }
+    let memory: UInt64
+    let cpu: Double?
+
+    // 聚合时只计算一次总量，排序和视图读取不再重复遍历子进程。
+    init(id: String, name: String, path: String?, processes: [ProcessUsage]) {
+        self.id = id
+        self.name = name
+        self.path = path
+        self.processes = processes
+        memory = processes.reduce(0) { $0 + $1.memory }
+        cpu = processes.allSatisfy { $0.cpu != nil } ? processes.reduce(0) { $0 + ($1.cpu ?? 0) } : nil
     }
 }
 
@@ -109,6 +116,13 @@ enum MonitorConfiguration {
     static let historySeconds: Double = 60
     static let processLimit = 5
     static let metadataLifetime: Double = 30
+    static let applicationIconSize: Double = 22
+    static let applicationIconScale: Double = 2
+}
+
+// 区分共享采样器的详情使用者，关闭其中一个窗口不影响其他可见面板。
+enum DetailConsumer: Hashable {
+    case popover, overview
 }
 
 // 用持久化值统一描述采样、显示与提醒选项。

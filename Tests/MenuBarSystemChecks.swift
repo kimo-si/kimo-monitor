@@ -31,6 +31,8 @@ struct MenuBarSystemChecks: App {
         await checkOutsideClick(controller: controller)
         // 改变所有菜单读数，确认原生按钮不会恢复系统默认宽边距。
         await checkChangingReadings(controller: controller, original: original)
+        // 总览和设置关闭后必须销毁宿主视图，且能重新打开。
+        checkWindowRelease(store: store)
         // 启动真实采样，验证 Observation 会把下一份快照送到状态按钮。
         store.start()
         try? await Task.sleep(for: .seconds(MonitorConfiguration.interval + 1))
@@ -42,6 +44,25 @@ struct MenuBarSystemChecks: App {
             precondition(button.accessibilityLabel() == renderer.accessibilityText(for: kind, snapshot: store.snapshot))
         }
         print("PASS: 三个独立状态项的面板操作和实时更新均正确；尺寸 \(original)")
+    }
+
+    // 实际创建并重复关闭窗口，检查关闭后没有保留观察实时快照的内容视图。
+    @MainActor private static func checkWindowRelease(store: MonitorStore) {
+        for _ in 0..<2 {
+            PreviewWindow.show(store: store)
+            guard let overview = NSApp.windows.first(where: { $0.title == "Kimo Monitor · 实时对照" && $0.isVisible }) else {
+                preconditionFailure("总览没有重新打开")
+            }
+            overview.close()
+            precondition(overview.contentView == nil, "关闭后必须释放总览视图")
+            SettingsWindow.show(store: store)
+            guard let settings = NSApp.windows.first(where: { $0.title == "Kimo Monitor 设置" && $0.isVisible }) else {
+                preconditionFailure("设置没有重新打开")
+            }
+            settings.close()
+            precondition(settings.contentViewController == nil, "关闭后必须释放设置视图")
+        }
+        print("PASS: 总览与设置关闭后释放视图，连续两次重开正常")
     }
 
 

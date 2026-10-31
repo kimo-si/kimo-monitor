@@ -9,6 +9,7 @@ final class MenuBarLabelRenderer {
         let image: NSImage
     }
     private var cache: [MonitorKind: CachedLabel] = [:]
+    private let bitmapRenderer = MenuBarBitmapRenderer()
     static let imageHeight: CGFloat = MenuBarLayout.height
 
     // 仅在显示文字变化时重绘；状态图始终保持固定尺寸。
@@ -32,12 +33,8 @@ final class MenuBarLabelRenderer {
     // 按布局的原生点尺寸生成 Retina 模板图，保持粗体字形的原始宽高比。
     private func render(kind: MonitorKind, snapshot: MonitorSnapshot, preferences: MonitorPreferences) -> NSImage {
         let width = kind == .network ? MenuBarLayout.networkWidth : (kind == .memory && preferences.memoryDisplay == .used ? MenuBarLayout.memoryCapacityWidth : MenuBarLayout.metricWidth)
-        let renderer = ImageRenderer(content: MenuLabel(kind: kind, snapshot: snapshot, preferences: preferences))
-        renderer.scale = 2
-        renderer.proposedSize = ProposedViewSize(width: width, height: MenuBarLayout.height)
-        guard let image = renderer.nsImage else { return failureImage(width: width) }
-        image.isTemplate = true
-        return image
+        return bitmapRenderer.render(kind: kind, snapshot: snapshot, preferences: preferences, width: width)
+            ?? failureImage(width: width)
     }
 
     // 渲染失败时显示明确的错误标记，保留固定宽度且不发布伪造读数。
@@ -47,6 +44,99 @@ final class MenuBarLabelRenderer {
         image.size = NSSize(width: width, height: Self.imageHeight)
         image.isTemplate = true
         return image
+    }
+}
+
+// 直接绘制固定布局的小位图，菜单栏刷新不再创建 SwiftUI 视图树。
+@MainActor
+private final class MenuBarBitmapRenderer {
+    private let captionFont = NSFont.systemFont(ofSize: MenuBarTypography.captionSize, weight: .bold)
+    private let valueFont = NSFont.monospacedDigitSystemFont(ofSize: MenuBarTypography.valueSize, weight: .bold)
+    private let rateFont = NSFont.monospacedDigitSystemFont(ofSize: MenuBarTypography.rateSize, weight: .bold)
+    private let unitFont = NSFont.systemFont(ofSize: MenuBarTypography.rateSize, weight: .bold)
+    private let up = NSImage(systemSymbolName: "arrow.up", accessibilityDescription: nil)?
+        .withSymbolConfiguration(.init(pointSize: MenuBarTypography.arrowSize, weight: .bold))
+    private let down = NSImage(systemSymbolName: "arrow.down", accessibilityDescription: nil)?
+        .withSymbolConfiguration(.init(pointSize: MenuBarTypography.arrowSize, weight: .bold))
+
+    // 使用真实 2× 像素缓冲区，模板图交由系统适配菜单栏颜色。
+    func render(kind: MonitorKind, snapshot: MonitorSnapshot, preferences: MonitorPreferences, width: CGFloat) -> NSImage? {
+        let scale = MenuBarLayout.imageScale
+        guard let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(width * scale),
+                                            pixelsHigh: Int(MenuBarLayout.height * scale), bitsPerSample: 8,
+                                            samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+                                            colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0),
+              let context = NSGraphicsContext(bitmapImageRep: bitmap) else { return nil }
+        NSGraphicsContext.saveGraphicsState()
+        defer { NSGraphicsContext.restoreGraphicsState() }
+        NSGraphicsContext.current = context
+        context.cgContext.scaleBy(x: scale, y: scale)
+        if kind == .network { drawNetwork(snapshot, preferences: preferences) }
+        else { drawMetric(kind, snapshot: snapshot, preferences: preferences, width: width) }
+        bitmap.size = NSSize(width: width, height: MenuBarLayout.height)
+        let image = NSImage(size: bitmap.size)
+        image.addRepresentation(bitmap)
+        image.isTemplate = true
+        return image
+    }
+
+    // 与设置预览共用指标格式和字号，百分比及容量保持固定宽度。
+    private func drawMetric(_ kind: MonitorKind, snapshot: MonitorSnapshot, preferences: MonitorPreferences, width: CGFloat) {
+        let caption = NSRect(x: 0, y: MenuBarLayout.valueHeight, width: width, height: MenuBarLayout.captionHeight)
+        drawText(kind == .cpu ? "CPU" : "MEM", font: captionFont, rect: caption)
+        let value = MenuLabel(kind: kind, snapshot: snapshot, preferences: preferences).menuValue
+        drawText(value, font: valueFont, rect: NSRect(x: 0, y: 0, width: width, height: MenuBarLayout.valueHeight),
+                 minimumScale: MenuBarLayout.metricMinimumScale)
+    }
+
+    // 单方向在整块标签中居中，双方向分别占上下两行。
+    private func drawNetwork(_ snapshot: MonitorSnapshot, preferences: MonitorPreferences) {
+        let rowHeight = MenuBarLayout.height / 2
+        let singleOrigin = rowHeight / 2
+        if preferences.networkDisplay != .download {
+            drawRate(snapshot.upload, unit: preferences.rateUnit, arrow: up,
+                     origin: preferences.networkDisplay == .both ? rowHeight : singleOrigin)
+        }
+        if preferences.networkDisplay != .upload {
+            drawRate(snapshot.download, unit: preferences.rateUnit, arrow: down,
+                     origin: preferences.networkDisplay == .both ? 0 : singleOrigin)
+        }
+    }
+
+    // 固定数字与单位列，缩放只作用于数字，保持单位的像素位置一致。
+    private func drawRate(_ value: Double?, unit: RateUnit, arrow: NSImage?, origin: CGFloat) {
+        let height = MenuBarLayout.height / 2
+        let metric = MonitorFormat.menuRateMetric(value, unit: unit)
+        let x = MenuBarLayout.arrowWidth + MenuBarLayout.columnSpacing
+        let y = origin - MenuBarLayout.rateBaselineOffset
+        if let arrow {
+            let size = arrow.size
+            arrow.draw(in: NSRect(x: (MenuBarLayout.arrowWidth - size.width) / 2,
+                                  y: origin + (height - size.height) / 2 - MenuBarLayout.arrowBaselineOffset,
+                                  width: size.width, height: size.height))
+        }
+        drawText(metric.number, font: rateFont,
+                 rect: NSRect(x: x, y: y, width: MenuBarLayout.rateNumberWidth, height: height),
+                 minimumScale: MenuBarLayout.rateMinimumScale, trailing: true)
+        drawText(metric.unit, font: unitFont,
+                 rect: NSRect(x: x + MenuBarLayout.rateNumberWidth + MenuBarLayout.rateUnitSpacing,
+                              y: y, width: MenuBarLayout.rateUnitWidth, height: height))
+    }
+
+    // 以统一字体度量居中绘制，超长文字等比缩小并限制在自己的列内。
+    private func drawText(_ text: String, font: NSFont, rect: NSRect, minimumScale: CGFloat = 1, trailing: Bool = false) {
+        let string = NSAttributedString(string: text, attributes: [.font: font, .foregroundColor: NSColor.black])
+        let size = string.size()
+        let scale = max(minimumScale, min(1, rect.width / max(1, size.width)))
+        let x = trailing ? rect.maxX - size.width * scale : rect.minX
+        NSGraphicsContext.saveGraphicsState()
+        defer { NSGraphicsContext.restoreGraphicsState() }
+        NSBezierPath(rect: rect).addClip()
+        let transform = AffineTransform(translationByX: x, byY: rect.midY - size.height * scale / 2)
+        (transform as NSAffineTransform).concat()
+        let scaling = AffineTransform(scale: scale)
+        (scaling as NSAffineTransform).concat()
+        string.draw(at: .zero)
     }
 }
 
@@ -86,8 +176,11 @@ final class MenuBarController: NSObject, NSPopoverDelegate {
             item.isVisible = visible
             item.length = kind == .memory && preferences.memoryDisplay == .used ? MenuBarLayout.memoryCapacityWidth : MenuBarLayout.statusItemWidth(for: kind)
             if !visible && activeKind == kind { closePanel() }
+            guard visible else { continue }
             let description = renderer.accessibilityText(for: kind, snapshot: snapshot, preferences: preferences)
-            item.button?.image = renderer.image(for: kind, snapshot: snapshot, preferences: preferences)
+            let image = renderer.image(for: kind, snapshot: snapshot, preferences: preferences)
+            if item.button?.image !== image { item.button?.image = image }
+            guard item.button?.toolTip != description else { continue }
             item.button?.toolTip = description
             item.button?.setAccessibilityLabel(description)
         }
@@ -148,7 +241,10 @@ final class MenuBarController: NSObject, NSPopoverDelegate {
         NSApplication.shared.activate()
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         // 只在面板显示期间监听外部点击，避免按钮点击与系统自动关闭竞争。
-        if popover.isShown { startMonitoringClicks() }
+        if popover.isShown {
+            store.setDetailsVisible(true, for: .popover)
+            startMonitoringClicks()
+        }
     }
 
     // 关闭面板并清理与本次展示绑定的点击监听。
@@ -193,6 +289,9 @@ final class MenuBarController: NSObject, NSPopoverDelegate {
     // 面板被系统关闭时同步清理状态和监听。
     func popoverDidClose(_ notification: Notification) {
         stopMonitoringClicks()
+        // 销毁关闭面板的 SwiftUI 树并撤销进程排行需求。
+        popover.contentViewController = nil
+        store.setDetailsVisible(false, for: .popover)
         let closedKind = activeKind
         activeKind = nil
         // 面板自行关闭时，同步结束对应的系统菜单栏会话。

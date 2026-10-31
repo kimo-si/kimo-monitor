@@ -27,10 +27,14 @@ enum MonitorKind: String, CaseIterable {
 
 // 按参考图使用标准宽度的系统粗体，分别控制标题、百分比和网速的视觉层级。
 enum MenuBarTypography {
-    static let caption = Font.system(size: 8, weight: .bold, design: .default)
-    static let value = Font.system(size: 11, weight: .bold, design: .default)
-    static let rate = Font.system(size: 9.25, weight: .bold, design: .default)
-    static let arrow = Font.system(size: 7.5, weight: .bold, design: .default)
+    static let captionSize: CGFloat = 8
+    static let valueSize: CGFloat = 11
+    static let rateSize: CGFloat = 9.25
+    static let arrowSize: CGFloat = 7.5
+    static let caption = Font.system(size: captionSize, weight: .bold, design: .default)
+    static let value = Font.system(size: valueSize, weight: .bold, design: .default)
+    static let rate = Font.system(size: rateSize, weight: .bold, design: .default)
+    static let arrow = Font.system(size: arrowSize, weight: .bold, design: .default)
 }
 
 // 固定每个状态项的宽度，读数更新只改变文字，不重新分配菜单栏空间。
@@ -67,7 +71,7 @@ struct MenuLabel: View {
     }
 
     // 依据用户选择生成内存或 CPU 菜单读数。
-    private var menuValue: String {
+    var menuValue: String {
         guard kind == .memory else { return MonitorFormat.percent(snapshot.cpu) }
         switch preferences.memoryDisplay {
         case .pressure: return MonitorFormat.percent(snapshot.memoryPressureEstimate?.fraction)
@@ -92,7 +96,7 @@ struct MenuLabel: View {
     private func networkRate(_ metric: FormattedMetric) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: MenuBarLayout.rateUnitSpacing) {
             Text(metric.number).monospacedDigit()
-                .lineLimit(1).minimumScaleFactor(0.65).fixedSize(horizontal: false, vertical: true)
+                .lineLimit(1).minimumScaleFactor(MenuBarLayout.rateMinimumScale).fixedSize(horizontal: false, vertical: true)
                 .frame(width: MenuBarLayout.rateNumberWidth, alignment: .trailing)
             Text(metric.unit).fixedSize()
                 .frame(width: MenuBarLayout.rateUnitWidth, alignment: .leading)
@@ -108,6 +112,8 @@ enum MenuBarLayout {
     static let metricWidth: CGFloat = 26
     static let memoryCapacityWidth: CGFloat = 56
     static let metricMinimumScale: CGFloat = 0.7
+    static let rateMinimumScale: CGFloat = 0.65
+    static let imageScale: CGFloat = 2
     static let arrowWidth: CGFloat = 8
     static let arrowBaselineOffset: CGFloat = 0.5
     static let columnSpacing: CGFloat = 1.5

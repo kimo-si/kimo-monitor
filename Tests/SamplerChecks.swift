@@ -12,6 +12,8 @@ struct SamplerChecks {
         // 核对连续压力估算的计算与边界，不借用占用率或余量补数。
         checkMemoryPressureEstimate()
         checkLiveSampling()
+        // 验证关闭详情后不保留进程信息，重新打开不会跨关闭区间计算 CPU。
+        checkApplicationDemand()
         print("PASS: 所有采样校验通过")
     }
 
@@ -93,6 +95,7 @@ struct SamplerChecks {
 
     // 记录优化构建下每次采集耗时和进程端口数量是否保持稳定。
     private static func checkPerformance(_ sampler: SystemSampler) {
+        sampler.setApplicationsEnabled(true)
         let host = mach_host_self()
         defer { mach_port_deallocate(mach_task_self_, host) }
         let baseline = hostReferences(host)
@@ -102,6 +105,28 @@ struct SamplerChecks {
         precondition(portsAfter == baseline)
         let average = durations.reduce(0, +) / Double(durations.count)
         print("MEASURE: 50 次采样平均 \(average) ms，最大 \(durations.max() ?? 0) ms；Mach 端口 \(baseline) → \(portsAfter)")
+    }
+
+    // 按需采集必须保留首次缺失值语义，关闭图表后也不继续积累隐藏历史。
+    private static func checkApplicationDemand() {
+        let sampler = SystemSampler()
+        precondition(sampler.sample().topMemory.isEmpty)
+        sampler.setApplicationsEnabled(true)
+        let first = sampler.sample()
+        precondition(!first.topMemory.isEmpty && first.topCPU.isEmpty)
+        precondition(!sampler.sample().topCPU.isEmpty)
+        sampler.setApplicationsEnabled(false)
+        let closed = sampler.sample()
+        precondition(closed.topMemory.isEmpty && closed.topCPU.isEmpty)
+        sampler.setApplicationsEnabled(true)
+        precondition(sampler.sample().topCPU.isEmpty, "恢复时不能使用关闭前的进程 CPU 基线")
+        var preferences = MonitorPreferences()
+        preferences.showCharts = false
+        preferences.showApplications = false
+        sampler.configure(preferences)
+        let hidden = sampler.sample()
+        precondition(hidden.cpuHistory.isEmpty && hidden.networkHistory.isEmpty && hidden.topMemory.isEmpty)
+        print("PASS: 进程按需采样、关闭释放、重开 CPU 基线与隐藏图表")
     }
 
     // getrusage 提供与 Mach 时间接口独立的微秒累计 CPU 时间。

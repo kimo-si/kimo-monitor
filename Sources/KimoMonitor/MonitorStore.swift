@@ -13,6 +13,8 @@ final class MonitorStore {
     @ObservationIgnored private var timer: DispatchSourceTimer?
     @ObservationIgnored private var wakeTask: Task<Void, Never>?
     @ObservationIgnored private var icons: [String: NSImage] = [:]
+    @ObservationIgnored private var detailConsumers: Set<DetailConsumer> = []
+    @ObservationIgnored private var applicationsEnabled = false
 
     // 使用唯一的设置对象供采样、菜单栏和设置窗口共享。
     init(preferences: PreferencesStore = PreferencesStore()) { self.preferences = preferences }
@@ -24,7 +26,6 @@ final class MonitorStore {
     func start() {
         guard timer == nil else { return }
         // 先将持久化配置发送到后台队列，再启动唯一采样定时器。
-        applyPreferences(preferences.value)
         observePreferences()
         // 系统唤醒后重新建立差分基线，防止出现虚假的速率尖峰。
         observeWake()
@@ -36,6 +37,8 @@ final class MonitorStore {
         lastPreferences = value
         let sampler = self.sampler
         queue.async { sampler.configure(value) }
+        // 显示设置改变后同步排行榜需求，不创建第二个定时器。
+        configureApplications()
         if timer == nil { createTimer(interval: value.interval) }
         else if old?.interval != value.interval {
             timer?.schedule(deadline: .now() + value.interval, repeating: value.interval, leeway: .milliseconds(150))
@@ -48,7 +51,7 @@ final class MonitorStore {
         timer.schedule(deadline: .now(), repeating: interval, leeway: .milliseconds(150))
         let sampler = self.sampler
         timer.setEventHandler { @Sendable [weak self] in
-            let value = sampler.sample()
+            let value = autoreleasepool { sampler.sample() }
             Task { @MainActor [weak self] in self?.publish(value) }
         }
         self.timer = timer
@@ -81,15 +84,72 @@ final class MonitorStore {
         queue.async { @Sendable in sampler.resetBaseline() }
     }
 
+    // 按使用者登记可见性，总览与弹出面板共享一份进程采样。
+    func setDetailsVisible(_ visible: Bool, for consumer: DetailConsumer) {
+        if visible { detailConsumers.insert(consumer) }
+        else { detailConsumers.remove(consumer) }
+        // 仅在最终需求变化时启动或停用进程采集。
+        configureApplications()
+    }
+
+    // 没有可见应用列表时释放详情，重新打开时立即采集首帧。
+    private func configureApplications() {
+        let enabled = !detailConsumers.isEmpty && preferences.value.showApplications
+        guard enabled != applicationsEnabled else { return }
+        applicationsEnabled = enabled
+        let sampler = self.sampler
+        queue.async { [weak self] in
+            // 在同一串行队列切换需求，避免与定时采样竞争。
+            sampler.setApplicationsEnabled(enabled)
+            guard enabled else { return }
+            let value = autoreleasepool { sampler.sample() }
+            Task { @MainActor [weak self] in self?.publish(value) }
+        }
+        if !enabled {
+            icons.removeAll()
+            snapshot.topMemory = []
+            snapshot.topCPU = []
+        }
+    }
+
     // 只为当前排行榜中的应用首次读取图标。
     private func publish(_ value: MonitorSnapshot) {
-        for app in value.topMemory + value.topCPU {
-            guard let path = app.path, icons[path] == nil else { continue }
-            icons[path] = NSWorkspace.shared.icon(forFile: path)
-        }
-        snapshot = value
+        var current = value
+        if !applicationsEnabled { current.topMemory = []; current.topCPU = [] }
+        // 缓存只覆盖当前排行，图标缩到实际 Retina 展示尺寸后保留。
+        updateIcons(current)
+        snapshot = current
         // 根据真实快照处理可选通知，不增加额外采样。
         alerts.evaluate(value, preferences: preferences.value)
+    }
+
+    // 移除不再展示的图标，避免长时间运行时随应用切换无限增长。
+    private func updateIcons(_ value: MonitorSnapshot) {
+        let paths = Set((value.topMemory + value.topCPU).compactMap(\.path))
+        icons = icons.filter { paths.contains($0.key) }
+        for path in paths where icons[path] == nil {
+            icons[path] = autoreleasepool { thumbnail(for: path) }
+        }
+    }
+
+    // 将系统多尺寸图标栅格化为小位图，不长期持有原始高分辨率图像。
+    private func thumbnail(for path: String) -> NSImage? {
+        let size = MonitorConfiguration.applicationIconSize
+        let scale = MonitorConfiguration.applicationIconScale
+        guard let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(size * scale),
+                                            pixelsHigh: Int(size * scale), bitsPerSample: 8, samplesPerPixel: 4,
+                                            hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB,
+                                            bytesPerRow: 0, bitsPerPixel: 0),
+              let context = NSGraphicsContext(bitmapImageRep: bitmap) else { return nil }
+        NSGraphicsContext.saveGraphicsState()
+        defer { NSGraphicsContext.restoreGraphicsState() }
+        NSGraphicsContext.current = context
+        context.cgContext.scaleBy(x: scale, y: scale)
+        NSWorkspace.shared.icon(forFile: path).draw(in: NSRect(x: 0, y: 0, width: size, height: size))
+        bitmap.size = NSSize(width: size, height: size)
+        let image = NSImage(size: bitmap.size)
+        image.addRepresentation(bitmap)
+        return image
     }
 
     // 视图读取缓存，不在 body 中查询系统或磁盘。

@@ -23,6 +23,7 @@ final class SystemSampler: @unchecked Sendable {
     private var previousCPU: host_cpu_load_info?
     private var snapshot = MonitorSnapshot()
     private var preferences = MonitorPreferences()
+    private var applicationsEnabled = false
 
     // 释放一次获取并重复使用的 Mach 主机端口，避免长期运行泄漏 send rights。
     deinit { mach_port_deallocate(mach_task_self_, host) }
@@ -52,6 +53,15 @@ final class SystemSampler: @unchecked Sendable {
             snapshot.networkHistory = []
         }
         preferences = value
+    }
+
+    // 排行榜只在有消费者时采集，停用时释放缓存及已有排行。
+    func setApplicationsEnabled(_ enabled: Bool) {
+        guard applicationsEnabled != enabled else { return }
+        applicationsEnabled = enabled
+        processes.releaseCaches()
+        snapshot.topMemory = []
+        snapshot.topCPU = []
     }
 
     // 唤醒后重新建立累计计数基线；本次运行已记录流量保持不变。
@@ -199,6 +209,11 @@ final class SystemSampler: @unchecked Sendable {
 
     // 预先计算菜单面板需要的排行榜，避免 SwiftUI 刷新时扫描和排序。
     private func updateApplications() {
+        guard applicationsEnabled && preferences.showApplications else {
+            snapshot.topMemory = []
+            snapshot.topCPU = []
+            return
+        }
         let applications = processes.sample()
         snapshot.topMemory = Array(applications.sorted { $0.memory > $1.memory }.prefix(preferences.processLimit))
         snapshot.topCPU = Array(applications.filter { $0.cpu != nil }.sorted { ($0.cpu ?? 0) > ($1.cpu ?? 0) }.prefix(preferences.processLimit))
@@ -206,6 +221,11 @@ final class SystemSampler: @unchecked Sendable {
 
     // 按真实时间裁剪图表，失败或休眠间隔保持缺口。
     private func recordHistory() {
+        guard preferences.showCharts else {
+            snapshot.networkHistory = []
+            snapshot.cpuHistory = []
+            return
+        }
         let now = ProcessInfo.processInfo.systemUptime
         snapshot.networkHistory.append(HistoryPoint(time: now, primary: snapshot.download, secondary: snapshot.upload))
         snapshot.cpuHistory.append(HistoryPoint(time: now, primary: snapshot.cpu, secondary: nil))

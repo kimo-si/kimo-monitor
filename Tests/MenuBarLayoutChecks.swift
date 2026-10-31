@@ -22,6 +22,8 @@ struct MenuBarLayoutChecks {
         checkMemoryPressureCache()
         // 比较生产位图中的单位列，验证不同位数和小数不会移动或缩放单位。
         checkFixedRateUnits()
+        // 输出生产绘图与 SwiftUI 设置预览的对照，供真实字号视觉核验。
+        saveRendererComparison()
         precondition(MonitorFormat.menuRate(8_000) == "8 KB/s")
         precondition(MonitorFormat.menuRate(512_000) == "512 KB/s")
         print("PASS: 菜单栏网速从空值、B/s、KB/s 到 GB/s 均固定为 \(MenuBarLayout.networkWidth) × \(MenuBarLayout.height) pt")
@@ -140,6 +142,32 @@ struct MenuBarLayoutChecks {
             for x in 0..<image.pixelsWide where (image.colorAt(x: x, y: y)?.alphaComponent ?? 0) > 0.1 { return true }
         }
         return false
+    }
+
+    // 上排为 SwiftUI 参考，下排为原生生产位图，按原始 Retina 像素并排保存。
+    @MainActor private static func saveRendererComparison() {
+        var snapshot = MonitorSnapshot()
+        snapshot.cpu = 0.25
+        snapshot.upload = 8_000
+        snapshot.download = 512_000
+        snapshot.memory = MemoryUsage(total: 120, application: 0, wired: 20, compressed: 51, cached: 0)
+        let canvas = NSImage(size: NSSize(width: 150, height: 60))
+        canvas.lockFocus()
+        NSColor.white.setFill()
+        NSRect(x: 0, y: 0, width: 150, height: 60).fill()
+        var x: CGFloat = 5
+        for kind in [MonitorKind.network, .memory, .cpu] {
+            let renderer = ImageRenderer(content: MenuLabel(kind: kind, snapshot: snapshot).colorMultiply(.black))
+            renderer.scale = 2
+            let native = MenuBarLabelRenderer().image(for: kind, snapshot: snapshot)
+            renderer.nsImage?.draw(at: NSPoint(x: x, y: 33), from: .zero, operation: .sourceOver, fraction: 1)
+            native.draw(at: NSPoint(x: x, y: 3), from: .zero, operation: .sourceOver, fraction: 1)
+            x += native.size.width + 10
+        }
+        canvas.unlockFocus()
+        guard let tiff = canvas.tiffRepresentation, let bitmap = NSBitmapImageRep(data: tiff),
+              let data = bitmap.representation(using: .png, properties: [:]) else { preconditionFailure("绘图对照导出失败") }
+        try! data.write(to: URL(fileURLWithPath: "artifacts/menu-renderer-comparison.png"))
     }
 
 }
