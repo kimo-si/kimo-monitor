@@ -1,0 +1,371 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		31DE9EA613CE8F111DEEA033 /* Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14DE0DC0FBE14C0AFFD1B1F6 /* Formatting.swift */; };
+		3E0EA332C8CE8A6612DB092A /* MonitorPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EBB863138A21B19054C8729 /* MonitorPanel.swift */; };
+		3F2E75EF7A11BF4161F4C666 /* SettingsWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 483A8049E1054EDBBCEEE9C4 /* SettingsWindow.swift */; };
+		45C83BF017881289E24F1588 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D1435A5BE4E7BE6B4B9FD124 /* Assets.xcassets */; };
+		653AABB8AFD8C184D586F1B6 /* ProcessSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 385F8862834AA181B6DF3E37 /* ProcessSampler.swift */; };
+		7252E5C53F2ED0D0D845983D /* ApplicationList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8996DC14253E0B9C0E535BCA /* ApplicationList.swift */; };
+		74EE232DB5330D9CC48D9F84 /* SystemSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74A81D05AF1A284AF0B43441 /* SystemSampler.swift */; };
+		76DF1BD887620F3F873A02AA /* AlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A54650EEEF1E5FADCE7E2C /* AlertController.swift */; };
+		7FB478019BC6FE3E182E3DE6 /* PreferencesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33A8B12F00566E7185F8805 /* PreferencesStore.swift */; };
+		94A4752EC5AE7C70CA503176 /* PreviewWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93C56A511FF5A5CD0258CBF1 /* PreviewWindow.swift */; };
+		94E446A81A43A42927B5D0E8 /* KimoMonitorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD42F7381816A7E1F17CC782 /* KimoMonitorApp.swift */; };
+		96F8A9CD738D27C5739E12BC /* CPUContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9A14A0AB0986EBE8E342CF /* CPUContent.swift */; };
+		A9023240AC67FA1ACAF4ED3E /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98A06A30015B3B41446660B1 /* Models.swift */; };
+		AE01C37AB453875D23EA6DC2 /* HistoryChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F24D121066B53CD6C9FC2F2 /* HistoryChart.swift */; };
+		B22452E46DE3C27B5A55D836 /* NetworkContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2670C9A0D3A1BEB7FA6FC3C2 /* NetworkContent.swift */; };
+		DA3E7F96B90EE85C4FA2FD19 /* MenuBarLabelRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F7EDB4FF27C372474FE5225 /* MenuBarLabelRenderer.swift */; };
+		DDE9719E77A30E9DD2801974 /* MonitorStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7219F13A603D265DAE16B03 /* MonitorStore.swift */; };
+		E7A45DA47411BD8596B89654 /* MemoryContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F81890A5A24F45481F6076D /* MemoryContent.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0EBB863138A21B19054C8729 /* MonitorPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonitorPanel.swift; sourceTree = "<group>"; };
+		14DE0DC0FBE14C0AFFD1B1F6 /* Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatting.swift; sourceTree = "<group>"; };
+		19A54650EEEF1E5FADCE7E2C /* AlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertController.swift; sourceTree = "<group>"; };
+		1F81890A5A24F45481F6076D /* MemoryContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryContent.swift; sourceTree = "<group>"; };
+		2670C9A0D3A1BEB7FA6FC3C2 /* NetworkContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkContent.swift; sourceTree = "<group>"; };
+		385F8862834AA181B6DF3E37 /* ProcessSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessSampler.swift; sourceTree = "<group>"; };
+		3F24D121066B53CD6C9FC2F2 /* HistoryChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryChart.swift; sourceTree = "<group>"; };
+		483A8049E1054EDBBCEEE9C4 /* SettingsWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindow.swift; sourceTree = "<group>"; };
+		74A81D05AF1A284AF0B43441 /* SystemSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemSampler.swift; sourceTree = "<group>"; };
+		7F7EDB4FF27C372474FE5225 /* MenuBarLabelRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarLabelRenderer.swift; sourceTree = "<group>"; };
+		8996DC14253E0B9C0E535BCA /* ApplicationList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationList.swift; sourceTree = "<group>"; };
+		93C56A511FF5A5CD0258CBF1 /* PreviewWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewWindow.swift; sourceTree = "<group>"; };
+		98A06A30015B3B41446660B1 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		AC56C86A0585FA0C15415A27 /* KimoMonitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KimoMonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C33A8B12F00566E7185F8805 /* PreferencesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesStore.swift; sourceTree = "<group>"; };
+		C7219F13A603D265DAE16B03 /* MonitorStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonitorStore.swift; sourceTree = "<group>"; };
+		CC9A14A0AB0986EBE8E342CF /* CPUContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUContent.swift; sourceTree = "<group>"; };
+		CD42F7381816A7E1F17CC782 /* KimoMonitorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KimoMonitorApp.swift; sourceTree = "<group>"; };
+		D1435A5BE4E7BE6B4B9FD124 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		611DD4ECB0E9D05BB32846F5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AC56C86A0585FA0C15415A27 /* KimoMonitor.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		94F2B6BBC4047A74FE3571EB /* KimoMonitor */ = {
+			isa = PBXGroup;
+			children = (
+				19A54650EEEF1E5FADCE7E2C /* AlertController.swift */,
+				8996DC14253E0B9C0E535BCA /* ApplicationList.swift */,
+				D1435A5BE4E7BE6B4B9FD124 /* Assets.xcassets */,
+				CC9A14A0AB0986EBE8E342CF /* CPUContent.swift */,
+				14DE0DC0FBE14C0AFFD1B1F6 /* Formatting.swift */,
+				3F24D121066B53CD6C9FC2F2 /* HistoryChart.swift */,
+				CD42F7381816A7E1F17CC782 /* KimoMonitorApp.swift */,
+				1F81890A5A24F45481F6076D /* MemoryContent.swift */,
+				7F7EDB4FF27C372474FE5225 /* MenuBarLabelRenderer.swift */,
+				98A06A30015B3B41446660B1 /* Models.swift */,
+				0EBB863138A21B19054C8729 /* MonitorPanel.swift */,
+				C7219F13A603D265DAE16B03 /* MonitorStore.swift */,
+				2670C9A0D3A1BEB7FA6FC3C2 /* NetworkContent.swift */,
+				C33A8B12F00566E7185F8805 /* PreferencesStore.swift */,
+				93C56A511FF5A5CD0258CBF1 /* PreviewWindow.swift */,
+				385F8862834AA181B6DF3E37 /* ProcessSampler.swift */,
+				483A8049E1054EDBBCEEE9C4 /* SettingsWindow.swift */,
+				74A81D05AF1A284AF0B43441 /* SystemSampler.swift */,
+			);
+			name = KimoMonitor;
+			path = Sources/KimoMonitor;
+			sourceTree = "<group>";
+		};
+		E04BE5EA6097488534A6FAF8 = {
+			isa = PBXGroup;
+			children = (
+				94F2B6BBC4047A74FE3571EB /* KimoMonitor */,
+				611DD4ECB0E9D05BB32846F5 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		93D728D838EB7F4630D6FA22 /* KimoMonitor */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 11A65C7052438AEAC6625BA1 /* Build configuration list for PBXNativeTarget "KimoMonitor" */;
+			buildPhases = (
+				8A5FF72B50A91BE6617AF926 /* Sources */,
+				1F7459D6502064DAD7F0E8BF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KimoMonitor;
+			packageProductDependencies = (
+			);
+			productName = KimoMonitor;
+			productReference = AC56C86A0585FA0C15415A27 /* KimoMonitor.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7A243696FD6DA75D6660DE67 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					93D728D838EB7F4630D6FA22 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 8660E480C60A760FB5C40BBF /* Build configuration list for PBXProject "KimoMonitor" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = E04BE5EA6097488534A6FAF8;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 611DD4ECB0E9D05BB32846F5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				93D728D838EB7F4630D6FA22 /* KimoMonitor */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1F7459D6502064DAD7F0E8BF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				45C83BF017881289E24F1588 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8A5FF72B50A91BE6617AF926 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				76DF1BD887620F3F873A02AA /* AlertController.swift in Sources */,
+				7252E5C53F2ED0D0D845983D /* ApplicationList.swift in Sources */,
+				96F8A9CD738D27C5739E12BC /* CPUContent.swift in Sources */,
+				31DE9EA613CE8F111DEEA033 /* Formatting.swift in Sources */,
+				AE01C37AB453875D23EA6DC2 /* HistoryChart.swift in Sources */,
+				94E446A81A43A42927B5D0E8 /* KimoMonitorApp.swift in Sources */,
+				E7A45DA47411BD8596B89654 /* MemoryContent.swift in Sources */,
+				DA3E7F96B90EE85C4FA2FD19 /* MenuBarLabelRenderer.swift in Sources */,
+				A9023240AC67FA1ACAF4ED3E /* Models.swift in Sources */,
+				3E0EA332C8CE8A6612DB092A /* MonitorPanel.swift in Sources */,
+				DDE9719E77A30E9DD2801974 /* MonitorStore.swift in Sources */,
+				B22452E46DE3C27B5A55D836 /* NetworkContent.swift in Sources */,
+				7FB478019BC6FE3E182E3DE6 /* PreferencesStore.swift in Sources */,
+				94A4752EC5AE7C70CA503176 /* PreviewWindow.swift in Sources */,
+				653AABB8AFD8C184D586F1B6 /* ProcessSampler.swift in Sources */,
+				3F2E75EF7A11BF4161F4C666 /* SettingsWindow.swift in Sources */,
+				74EE232DB5330D9CC48D9F84 /* SystemSampler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		21F027207DDC10F071FCA5D1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kimo.monitor;
+				PRODUCT_NAME = "Kimo Monitor";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		31BFDDF3747A09B0B4E42E01 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		4B9204520B730B0E6AB54799 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kimo.monitor;
+				PRODUCT_NAME = "Kimo Monitor";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		E95C521CEF5EC80EE3B9D3BF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		11A65C7052438AEAC6625BA1 /* Build configuration list for PBXNativeTarget "KimoMonitor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4B9204520B730B0E6AB54799 /* Debug */,
+				21F027207DDC10F071FCA5D1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		8660E480C60A760FB5C40BBF /* Build configuration list for PBXProject "KimoMonitor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E95C521CEF5EC80EE3B9D3BF /* Debug */,
+				31BFDDF3747A09B0B4E42E01 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7A243696FD6DA75D6660DE67 /* Project object */;
+}

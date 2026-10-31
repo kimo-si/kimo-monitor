@@ -1,0 +1,11 @@
+.DS_Store
+DerivedData/
+build/
+*.xcuserstate
+xcuserdata/
+
+# 本机构建产物和运行检查报告
+*.dmg
+__pycache__/
+artifacts/validation.txt
+artifacts/menu-system-validation.txt

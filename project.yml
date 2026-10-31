@@ -1,0 +1,19 @@
+name: KimoMonitor
+options:
+  bundleIdPrefix: com.kimo
+  deploymentTarget:
+    macOS: '14.0'
+targets:
+  KimoMonitor:
+    type: application
+    platform: macOS
+    sources: [Sources/KimoMonitor]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.kimo.monitor
+        PRODUCT_NAME: Kimo Monitor
+        SWIFT_VERSION: '6.0'
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_LSUIElement: YES
+        CODE_SIGN_STYLE: Automatic
+        ENABLE_APP_SANDBOX: NO
